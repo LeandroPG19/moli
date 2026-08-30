@@ -213,7 +213,7 @@ struct DomPointPrototypeAccessorsDeclaration {
 }
 
 #[derive(WebApiFunctionTemplate)]
-#[webapi(interface = web_api_interfaces::DOMPointReadOnly)]
+#[webapi(interface = web_api_interfaces::DOMPointReadOnly, enumerable)]
 struct DomPointReadOnlyPrototypeMethodsDeclaration {
     #[webapi(
         method = "matrixTransform",
@@ -247,7 +247,7 @@ struct DomPointConstructorDeclaration {
 }
 
 #[derive(WebApiFunctionTemplate)]
-#[webapi(interface = web_api_interfaces::DOMPointReadOnly)]
+#[webapi(interface = web_api_interfaces::DOMPointReadOnly, enumerable)]
 struct DomPointReadOnlyConstructorDeclaration {
     #[webapi(
         static_method = "fromPoint",
@@ -492,7 +492,11 @@ struct DomMatrixPrototypeMethodsDeclaration {
 #[derive(WebApiFunctionTemplate)]
 #[webapi(name = "DOMMatrix", enumerable)]
 struct DomMatrixWindowPrototypeMethodsDeclaration {
-    #[webapi(method = "setMatrixValue", length = 1, callback = dom_matrix_set_matrix_value_callback)]
+    #[webapi(
+        method = "setMatrixValue",
+        length = 1,
+        callback = dom_matrix_set_matrix_value_callback
+    )]
     set_matrix_value: (),
 }
 
