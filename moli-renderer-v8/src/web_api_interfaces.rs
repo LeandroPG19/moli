@@ -486,6 +486,7 @@ interfaces! {
     SVGTextPositioningElement: SVGTextContentElement;
     SVGTitleElement: SVGElement;
     SVGUnitTypes;
+    SVGPointList;
     SVGStringList;
     SVGTransform;
     SVGTransformList;
