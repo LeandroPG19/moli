@@ -1540,5 +1540,5 @@ mod postmessage;
 mod canvas_transform_snapshots;
 
 mod tls;
-
+mod trusted_types_reporting;
 mod xhr_failure;
