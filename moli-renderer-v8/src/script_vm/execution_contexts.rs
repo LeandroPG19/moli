@@ -417,6 +417,7 @@ impl ScriptVm {
                     .borrow_mut()
                     .retire_window_execution_contexts_for_context_token(
                         context.runtime_observable_context_token,
+                        self.resource_owner_id,
                     );
                 let context_ptr = &context.context as *const v8::Global<v8::Context>;
                 let reuses_window_proxy = self
@@ -570,6 +571,7 @@ impl ScriptVm {
                 for (_, context) in &stale_prebootstrapped_contexts {
                     host.retire_window_execution_contexts_for_context_token(
                         context.runtime_observable_context_token,
+                        self.resource_owner_id,
                     );
                 }
             }
@@ -672,6 +674,7 @@ impl ScriptVm {
             let retired_window_execution_context_count = host
                 .retire_window_execution_contexts_for_context_token(
                     context.runtime_observable_context_token,
+                    self.resource_owner_id,
                 );
             (
                 runtime_binding_retirement,
@@ -828,7 +831,10 @@ impl ScriptVm {
         let retired_window_execution_context_realm_count = self
             ._context_host
             .borrow_mut()
-            .retire_isolated_window_execution_context(context.runtime_observable_context_token);
+            .retire_isolated_window_execution_context(
+                context.runtime_observable_context_token,
+                self.resource_owner_id,
+            );
         tracing::debug!(
             execution_context_id,
             context_token = ?context.runtime_observable_context_token,

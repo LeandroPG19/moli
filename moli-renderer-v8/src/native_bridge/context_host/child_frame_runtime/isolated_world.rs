@@ -148,6 +148,7 @@ impl JsContextHost {
                 .retire_owner(WindowExecutionContextOwner::Frame(stale.local_window_id));
             self.retire_window_execution_contexts_for_context_token(
                 stale.runtime_observable_context_token,
+                config.resource_owner_id,
             );
             if self.child_window_proxy_frame_is_current(handle, &stale.frame_id) {
                 stale_context.detach_global();
