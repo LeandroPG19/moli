@@ -1,6 +1,8 @@
 //! Browser-compatible text, document, form, script, and URL encoding helpers.
 
 mod document;
+mod xhr;
+pub use xhr::{XhrResponseDecoder, XhrResponseTextKind};
 mod form;
 mod labels;
 mod legacy_text;
