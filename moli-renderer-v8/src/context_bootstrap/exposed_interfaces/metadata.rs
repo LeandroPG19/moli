@@ -161,6 +161,7 @@ pub(in crate::context_bootstrap) const INDEXED_DB_INTERFACE_NAMES: &[&str] = &[
     "IDBCursor",
     "IDBCursorWithValue",
     "IDBKeyRange",
+    "IDBRecord",
     "IDBVersionChangeEvent",
 ];
 

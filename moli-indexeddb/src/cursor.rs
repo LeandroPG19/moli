@@ -38,11 +38,13 @@ pub fn apply_cursor_direction_by_key<T>(
     direction: CursorDirection,
     mut key_for: impl FnMut(&T) -> &Key,
 ) -> Vec<T> {
-    if direction.is_reverse() {
-        entries.reverse();
-    }
+    // Unique iteration always selects the lowest primary key for each index
+    // key. Deduplicate ascending entries before reversing the distinct keys.
     if direction.is_unique() {
         entries.dedup_by(|right, left| key_for(left) == key_for(right));
+    }
+    if direction.is_reverse() {
+        entries.reverse();
     }
     entries
 }

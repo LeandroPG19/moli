@@ -2069,6 +2069,7 @@ pub(crate) fn finish_context_bootstrap(
         ("IDBCursor", "IDBCursor"),
         ("IDBCursorWithValue", "IDBCursorWithValue"),
         ("IDBKeyRange", "IDBKeyRange"),
+        ("IDBRecord", "IDBRecord"),
         ("IDBVersionChangeEvent", "IDBVersionChangeEvent"),
         ("Window", "Window"),
     ] {
