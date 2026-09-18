@@ -154,6 +154,7 @@ pub(crate) use css_fontface_runtime::{
     load_font_faces_for_family, new_font_face_set, rebuild_font_face_set_faces,
 };
 pub(crate) use form_navigation::FormNavigationHistory;
+pub(crate) use history_mutation::update_history_for_document_open;
 pub(crate) use location_navigation::{
     LocationNavigationKind, dispatch_top_level_form_navigation_event,
     dispatch_top_level_navigation_event_with_source_element, is_native_location,
