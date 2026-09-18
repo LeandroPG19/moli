@@ -419,13 +419,14 @@ impl ScriptVm {
                         context.local_window_id,
                     ),
                 );
+                let context_ptr = &context.context as *const v8::Global<v8::Context>;
+                self.clear_context_wrapper_cache_for_context_ptr(context_ptr, false);
                 self._context_host
                     .borrow_mut()
                     .retire_window_execution_contexts_for_context_token(
                         context.runtime_observable_context_token,
                         self.resource_owner_id,
                     );
-                let context_ptr = &context.context as *const v8::Global<v8::Context>;
                 let reuses_window_proxy = self
                     ._context_host
                     .borrow()
@@ -571,6 +572,7 @@ impl ScriptVm {
                         context.local_window_id,
                     ),
                 );
+                self.clear_context_wrapper_cache_for_context_ptr(&context.context, false);
             }
             {
                 let mut host = self._context_host.borrow_mut();
@@ -640,6 +642,8 @@ impl ScriptVm {
         self.cancel_history_traversals_for_retiring_window(
             crate::native_bridge::WindowExecutionContextOwner::Frame(context.local_window_id),
         );
+        let context_ptr: *const v8::Global<v8::Context> = &context.context as *const _;
+        self.clear_context_wrapper_cache_for_context_ptr(context_ptr, false);
         let retired_timer_count = self
             .document_runtime
             .cancel_timers_for_context_token(context.runtime_observable_context_token);
