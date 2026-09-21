@@ -2292,3 +2292,4 @@ mod dom_rect_factory_descriptors;
 mod dom_rect_structured_clone;
 mod domrect_receiver_consolidation;
 mod window_restricted_accessors;
+mod window_scheduling_receivers;
