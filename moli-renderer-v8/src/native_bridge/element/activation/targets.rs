@@ -344,7 +344,7 @@ fn navigate_element_popup_target(
         opener,
         None,
         target_name,
-        resolved_url,
+        Some(resolved_url),
         creator.base_url,
         creator.policy_container,
         false,
@@ -468,7 +468,7 @@ fn navigate_special_target_from_window<'s>(
     runtime_ptr: *mut JsContextHost,
     source_window: v8::Local<'s, v8::Object>,
     target: Option<SpecialBrowsingContextTarget>,
-    resolved_url: &str,
+    resolved_url: Option<&str>,
 ) -> Option<v8::Local<'s, v8::Object>> {
     let global = scope.get_current_context().global(scope);
     let target_window = match target {
@@ -481,9 +481,10 @@ fn navigate_special_target_from_window<'s>(
             .and_then(|value| v8::Local::<v8::Object>::try_from(value).ok())?,
         Some(SpecialBrowsingContextTarget::Blank) => return None,
     };
-    let navigated = if resolved_url.is_empty() {
-        true
-    } else if target_window.strict_equals(global.into()) {
+    let Some(resolved_url) = resolved_url else {
+        return Some(target_window);
+    };
+    let navigated = if target_window.strict_equals(global.into()) {
         queue_top_level_location_navigation(scope, runtime_ptr, resolved_url)
     } else {
         navigate_target_window_location(scope, target_window, resolved_url)
@@ -495,7 +496,7 @@ pub(crate) fn navigate_existing_browsing_context_target<'s>(
     scope: &mut v8::PinScope<'s, '_>,
     runtime_ptr: *mut JsContextHost,
     target: SpecialBrowsingContextTarget,
-    resolved_url: &str,
+    resolved_url: Option<&str>,
 ) -> Option<v8::Local<'s, v8::Object>> {
     assert_ne!(
         target,
@@ -540,7 +541,7 @@ pub(super) fn navigate_hyperlink_source_browsing_context(
                 runtime_ptr,
                 source_window,
                 Some(SpecialBrowsingContextTarget::Current),
-                resolved_url,
+                Some(resolved_url),
             )
             .is_some()
         }
@@ -608,7 +609,7 @@ pub(in crate::native_bridge) fn navigate_element_target_browsing_context<'s>(
         runtime_ptr,
         source_window,
         special_target,
-        resolved_url,
+        Some(resolved_url),
     )
     .is_some()
 }
