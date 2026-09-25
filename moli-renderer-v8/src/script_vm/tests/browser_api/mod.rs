@@ -67,6 +67,7 @@ mod simple_handler_object;
 mod speech_synthesis;
 mod storage_access;
 mod storage_event_init;
+mod storage_events_across_pages;
 mod structured_clone;
 mod transferable_streams;
 mod traversal;
