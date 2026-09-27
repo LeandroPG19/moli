@@ -104,6 +104,25 @@ fn response_status_may_use_http_error_page(status: u16) -> bool {
     (400..600).contains(&status)
 }
 
+fn no_content_navigation_from_response(
+    head: ResponseHead,
+    request_method: String,
+    request_headers: moli_fetch::RequestHeaders,
+    network_observation_journal: NetworkObservationJournal,
+    body_progress_source: &MainDocumentBodyProgressSource,
+) -> NavigationLoadOutcome {
+    let network_progress = body_progress_source.body_network_progress_for_response_head(
+        &request_method,
+        &request_headers,
+        &head,
+        network_observation_journal,
+    );
+    NavigationLoadOutcome::NoContent(Box::new(NoContentNavigation {
+        final_url: head.final_url,
+        network_progress,
+    }))
+}
+
 #[allow(clippy::too_many_arguments)]
 async fn prepare_browser_owned_error_page_navigation_with_engine_async(
     engine: &mut NavigationEngine,
@@ -1060,6 +1079,7 @@ impl BackgroundNavigationLoadJob {
             let defer_early_result_for_http_error_body =
                 response_status_may_use_http_error_page(response.status);
             if !super::downloads::response_headers_indicate_download(&response.headers)
+                && !response_status_has_no_content(response.status)
                 && !defer_early_result_for_http_error_body
                 && !response_status_has_no_content(response.status)
                 && let Some(early_result) = early_result.take()
@@ -1386,6 +1406,22 @@ async fn build_navigation_from_streaming_raw_response_with_engine_async(
     } else {
         response.cookie_set_reports.clone()
     };
+    if response_status_has_no_content(response_status) {
+        // Ignore the response before preparing a renderer or consuming its body.
+        // In particular, Fetch.continueResponse can turn an open 200 stream into
+        // a 204/205; dropping that stream cancels it without waiting for EOF.
+        let mut head = response.head();
+        head.status = response_status;
+        head.headers = response_headers;
+        head.cookie_set_reports = response_cookie_reports;
+        return Ok(no_content_navigation_from_response(
+            head,
+            request_method,
+            request_headers,
+            network_observation_journal,
+            &body_progress_source,
+        ));
+    }
     let initial_request_cookie_report = response.request_cookie_report.clone();
     let response_from_cache = response.from_cache;
     let negotiated_http_version = response.negotiated_http_version;
@@ -1451,14 +1487,6 @@ async fn build_navigation_from_streaming_raw_response_with_engine_async(
     }
     let body_network_progress_state =
         body_progress_source.body_network_progress_for_completed_events(network_events);
-    if response_status_has_no_content(response_status) {
-        return Ok(NavigationLoadOutcome::NoContent(Box::new(
-            NoContentNavigation {
-                final_url,
-                network_progress: body_network_progress_state,
-            },
-        )));
-    }
     let body_progress_source_for_body_finish = body_progress_source.clone();
     let initial_body_chunk = if response_status_may_use_http_error_page(response_status) {
         match first_nonempty_response_body_chunk(&mut response).await? {
@@ -3387,7 +3415,9 @@ impl CdpConnection {
     ) -> anyhow::Result<NavigationLoadOutcome> {
         let (response, network_observation_journal) =
             response.into_parts_with_observation_journal();
-        if super::downloads::response_headers_indicate_download(&response.headers) {
+        if !response_status_has_no_content(response.status)
+            && super::downloads::response_headers_indicate_download(&response.headers)
+        {
             complete_auxiliary_download_response(load_inputs, response.head());
             return Ok(NavigationLoadOutcome::download(
                 self.build_download_from_raw_response(
@@ -3452,6 +3482,15 @@ impl CdpConnection {
         network_observation_journal: NetworkObservationJournal,
         body_progress_source: MainDocumentBodyProgressSource,
     ) -> anyhow::Result<NavigationLoadOutcome> {
+        if response_status_has_no_content(head.status) {
+            return Ok(no_content_navigation_from_response(
+                head,
+                request_method,
+                request_headers,
+                network_observation_journal,
+                &body_progress_source,
+            ));
+        }
         if super::downloads::response_headers_indicate_download(&head.headers) {
             complete_auxiliary_download_response(load_inputs, head.clone());
             let body_bytes = body
@@ -3465,21 +3504,6 @@ impl CdpConnection {
                     network_observation_journal,
                 ),
             ));
-        }
-
-        if response_status_has_no_content(head.status) {
-            let network_progress = body_progress_source.body_network_progress_for_response_head(
-                &request_method,
-                &request_headers,
-                &head,
-                network_observation_journal,
-            );
-            return Ok(NavigationLoadOutcome::NoContent(Box::new(
-                NoContentNavigation {
-                    final_url: head.final_url,
-                    network_progress,
-                },
-            )));
         }
 
         if load_inputs.browser_context_id.is_none() {
