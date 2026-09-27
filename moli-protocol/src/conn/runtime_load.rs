@@ -1081,7 +1081,6 @@ impl BackgroundNavigationLoadJob {
             if !super::downloads::response_headers_indicate_download(&response.headers)
                 && !response_status_has_no_content(response.status)
                 && !defer_early_result_for_http_error_body
-                && !response_status_has_no_content(response.status)
                 && let Some(early_result) = early_result.take()
             {
                 early_result_sent = early_result.emit();
