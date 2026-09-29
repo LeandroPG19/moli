@@ -2261,6 +2261,7 @@ mod legacy_performance;
 mod location_put_forwards;
 mod midi_owner_interfaces;
 mod mouse_snapshot;
+mod native_dom_strings;
 mod native_exception_stack_capture;
 mod navigation_timing_inheritance;
 mod no_cors_header_fill;
