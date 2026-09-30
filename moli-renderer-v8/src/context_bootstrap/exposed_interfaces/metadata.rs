@@ -163,6 +163,8 @@ const SECURE_CONTEXT_ONLY_INTERFACE_NAMES: &[&str] = &[
     "ToolCancelEvent",
     "MediaDeviceInfo",
     "InputDeviceInfo",
+    "Worklet",
+    "AudioWorklet",
     "ServiceWorker",
     "ServiceWorkerContainer",
     "ServiceWorkerRegistration",
