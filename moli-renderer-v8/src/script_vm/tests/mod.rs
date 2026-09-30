@@ -2304,6 +2304,7 @@ mod text_encoder_utf16_progress;
 mod time_ranges;
 mod url_components;
 mod wake_lock_interfaces;
+mod wave_shaper_interfaces;
 mod webgl_interfaces;
 mod webidl_collections;
 mod webidl_fetch;
