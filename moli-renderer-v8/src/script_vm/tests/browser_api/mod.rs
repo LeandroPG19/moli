@@ -69,3 +69,5 @@ mod document_domain_setter;
 
 mod message_event_init;
 mod window_current_event_private;
+
+mod video_codec_support;
