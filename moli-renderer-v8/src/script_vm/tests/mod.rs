@@ -2147,6 +2147,7 @@ mod headers_list;
 mod http_fixture;
 mod media_owner_playback_interfaces;
 mod media_recorder_shell;
+mod speech_events_shell;
 mod svg_animation_interfaces;
 
 mod audio_event_interfaces;
