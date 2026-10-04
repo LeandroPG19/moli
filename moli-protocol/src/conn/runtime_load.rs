@@ -111,15 +111,23 @@ fn no_content_navigation_from_response(
     network_observation_journal: NetworkObservationJournal,
     body_progress_source: &MainDocumentBodyProgressSource,
 ) -> NavigationLoadOutcome {
-    let network_progress = body_progress_source.body_network_progress_for_response_head(
-        &request_method,
-        &request_headers,
-        &head,
-        network_observation_journal,
-    );
+    let network_extra_info_available = !network_observation_journal.is_empty();
+    let network_events = CompletedMainDocumentNetworkEvents::new(
+        request_method,
+        request_headers.to_byte_strings(),
+        head.request_cookie_report,
+        head.status,
+        head.headers,
+        head.cookie_set_reports,
+        head.redirect_chain.into_iter().map(Into::into).collect(),
+        network_extra_info_available,
+        head.from_cache,
+    )
+    .with_negotiated_http_version(head.negotiated_http_version)
+    .with_network_observation_journal(network_observation_journal);
     NavigationLoadOutcome::NoContent(Box::new(NoContentNavigation {
         final_url: head.final_url,
-        network_progress,
+        network_events: body_progress_source.completed_body_network_events(network_events),
     }))
 }
 
