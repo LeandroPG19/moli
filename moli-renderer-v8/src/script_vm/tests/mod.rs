@@ -2227,6 +2227,7 @@ mod child_dynamic_inline_scripts;
 mod close_watchers;
 mod convolver_interfaces;
 mod credential_interfaces;
+mod credential_json_options;
 mod cross_origin_symbol_fallback;
 mod cross_origin_window_indexes;
 mod cross_origin_window_names;
