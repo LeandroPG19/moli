@@ -8,7 +8,7 @@ use thin_vec::ThinVec;
 /// joins two previously unpaired surrogates into a scalar value.
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub struct DomStringValue {
-    text: Box<str>,
+    text: String,
     unpaired_units: ThinVec<u16>,
 }
 
@@ -17,7 +17,7 @@ impl DomStringValue {
         match String::from_utf16(units) {
             Ok(text) => text.into(),
             Err(_) => Self {
-                text: String::from_utf16_lossy(units).into_boxed_str(),
+                text: String::from_utf16_lossy(units),
                 unpaired_units: units.iter().copied().collect(),
             },
         }
@@ -54,13 +54,21 @@ impl DomStringValue {
 
     pub fn append(&mut self, other: &Self) {
         if self.unpaired_units.is_empty() && other.unpaired_units.is_empty() {
-            let mut text = self.text.to_string();
-            text.push_str(&other.text);
-            self.text = text.into_boxed_str();
+            self.text.push_str(&other.text);
         } else {
             let mut units = self.utf16_units().into_owned();
             units.extend_from_slice(&other.utf16_units());
             *self = Self::from_utf16(&units);
+        }
+    }
+
+    /// Append scalar parser text without discarding capacity or original units.
+    /// A scalar string cannot begin with an unpaired low surrogate, so no
+    /// surrogate pair can form across this boundary.
+    pub fn append_str(&mut self, other: &str) {
+        self.text.push_str(other);
+        if !self.unpaired_units.is_empty() {
+            self.unpaired_units.extend(other.encode_utf16());
         }
     }
 
@@ -76,7 +84,7 @@ impl DomStringValue {
 impl From<String> for DomStringValue {
     fn from(text: String) -> Self {
         Self {
-            text: text.into_boxed_str(),
+            text,
             unpaired_units: ThinVec::new(),
         }
     }
@@ -103,6 +111,34 @@ impl From<&DomStringValue> for DomStringValue {
 #[cfg(test)]
 mod tests {
     use super::DomStringValue;
+
+    #[test]
+    fn scalar_append_retains_reserved_capacity() {
+        let mut text = String::with_capacity(256);
+        text.push_str("start");
+        let pointer = text.as_ptr();
+        let mut value = DomStringValue::from(text);
+        for _ in 0..16 {
+            value.append_str("中文🙂");
+            assert_eq!(value.as_str_lossy().as_ptr(), pointer);
+        }
+        assert_eq!(
+            value.as_str(),
+            Some(format!("start{}", "中文🙂".repeat(16)).as_str())
+        );
+    }
+
+    #[test]
+    fn scalar_append_preserves_unpaired_utf16_units() {
+        for original in [&[0xd800][..], &[0xdc00], &[0x61, 0xd800, 0x62]] {
+            let mut value = DomStringValue::from_utf16(original);
+            value.append_str("\0😀tail");
+            let mut expected = original.to_vec();
+            expected.extend("\0😀tail".encode_utf16());
+            assert_eq!(&*value.utf16_units(), expected);
+            assert_eq!(value, DomStringValue::from_utf16(&expected));
+        }
+    }
 
     #[test]
     fn utf16_values_preserve_unpaired_surrogates_and_compare_original_units() {
