@@ -3675,7 +3675,7 @@ pub(super) fn reflect_svg_animated_number_to_owner_attribute<'s>(
     let value = svg_number_slot(scope, animated, SVG_ANIMATED_NUMBER_BASE_VAL_SLOT).unwrap_or(0.0);
     let value = svg_geometry::serialize_number(value);
     let Ok((runtime_ptr, handle)) =
-        crate::native_bridge::node_runtime_and_handle_from_object(scope, owner)
+        crate::native_bridge::node_runtime_and_handle_from_object_or_detached(scope, owner)
     else {
         return;
     };
