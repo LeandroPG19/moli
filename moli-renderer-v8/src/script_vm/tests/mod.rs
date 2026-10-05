@@ -2321,6 +2321,7 @@ mod svg_switch_mpath_interfaces;
 mod text_encoder_utf16_progress;
 mod time_ranges;
 mod url_components;
+mod video_color_space;
 mod wake_lock_interfaces;
 mod wave_shaper_interfaces;
 mod webgl_interfaces;
