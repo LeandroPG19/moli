@@ -2321,6 +2321,7 @@ mod svg_geometry_receivers;
 mod svg_number_validation;
 mod svg_root_factory_receivers;
 mod svg_switch_mpath_interfaces;
+mod svg_uri_reference;
 mod text_encoder_utf16_progress;
 mod time_ranges;
 mod url_components;
