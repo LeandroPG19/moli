@@ -1776,7 +1776,7 @@ struct SvgFilterElementPrototypeAccessorsDeclaration {
 }
 
 #[derive(WebApiFunctionTemplate)]
-#[webapi(interface = web_api_interfaces::SVGComponentTransferFunctionElement, enumerable)]
+#[webapi(interface = web_api_interfaces::SVGComponentTransferFunctionElement, enumerable, receiver)]
 struct SvgComponentTransferFunctionElementPrototypeAccessorsDeclaration {
     #[webapi(
         accessor_property = "type",
@@ -1787,7 +1787,7 @@ struct SvgComponentTransferFunctionElementPrototypeAccessorsDeclaration {
 }
 
 #[derive(WebApiFunctionTemplate)]
-#[webapi(interface = web_api_interfaces::SVGFEBlendElement, enumerable)]
+#[webapi(interface = web_api_interfaces::SVGFEBlendElement, enumerable, receiver)]
 struct SvgFeBlendElementPrototypeAccessorsDeclaration {
     #[webapi(
         accessor_property = "mode",
@@ -1798,7 +1798,7 @@ struct SvgFeBlendElementPrototypeAccessorsDeclaration {
 }
 
 #[derive(WebApiFunctionTemplate)]
-#[webapi(interface = web_api_interfaces::SVGFEColorMatrixElement, enumerable)]
+#[webapi(interface = web_api_interfaces::SVGFEColorMatrixElement, enumerable, receiver)]
 struct SvgFeColorMatrixElementPrototypeAccessorsDeclaration {
     #[webapi(
         accessor_property = "type",
@@ -1809,7 +1809,7 @@ struct SvgFeColorMatrixElementPrototypeAccessorsDeclaration {
 }
 
 #[derive(WebApiFunctionTemplate)]
-#[webapi(interface = web_api_interfaces::SVGFECompositeElement, enumerable)]
+#[webapi(interface = web_api_interfaces::SVGFECompositeElement, enumerable, receiver)]
 struct SvgFeCompositeElementPrototypeAccessorsDeclaration {
     #[webapi(
         accessor_property = "operator",
@@ -1820,7 +1820,7 @@ struct SvgFeCompositeElementPrototypeAccessorsDeclaration {
 }
 
 #[derive(WebApiFunctionTemplate)]
-#[webapi(interface = web_api_interfaces::SVGFEConvolveMatrixElement, enumerable)]
+#[webapi(interface = web_api_interfaces::SVGFEConvolveMatrixElement, enumerable, receiver)]
 struct SvgFeConvolveMatrixElementPrototypeAccessorsDeclaration {
     #[webapi(
         accessor_property = "orderX",
@@ -1865,7 +1865,7 @@ struct SvgFeConvolveMatrixElementPrototypeAccessorsDeclaration {
 }
 
 #[derive(WebApiFunctionTemplate)]
-#[webapi(interface = web_api_interfaces::SVGFEDisplacementMapElement, enumerable)]
+#[webapi(interface = web_api_interfaces::SVGFEDisplacementMapElement, enumerable, receiver)]
 struct SvgFeDisplacementMapElementPrototypeAccessorsDeclaration {
     #[webapi(
         accessor_property = "xChannelSelector",
@@ -1883,7 +1883,7 @@ struct SvgFeDisplacementMapElementPrototypeAccessorsDeclaration {
 }
 
 #[derive(WebApiFunctionTemplate)]
-#[webapi(interface = web_api_interfaces::SVGFEMorphologyElement, enumerable)]
+#[webapi(interface = web_api_interfaces::SVGFEMorphologyElement, enumerable, receiver)]
 struct SvgFeMorphologyElementPrototypeAccessorsDeclaration {
     #[webapi(
         accessor_property = "operator",
@@ -1894,7 +1894,7 @@ struct SvgFeMorphologyElementPrototypeAccessorsDeclaration {
 }
 
 #[derive(WebApiFunctionTemplate)]
-#[webapi(interface = web_api_interfaces::SVGFETurbulenceElement, enumerable)]
+#[webapi(interface = web_api_interfaces::SVGFETurbulenceElement, enumerable, receiver)]
 struct SvgFeTurbulenceElementPrototypeAccessorsDeclaration {
     #[webapi(
         accessor_property = "numOctaves",

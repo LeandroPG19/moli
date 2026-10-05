@@ -212,9 +212,6 @@ enum SvgAnimatedIntegerComponent {
 #[derive(Clone, Copy)]
 struct SvgAnimatedIntegerProperty {
     index: usize,
-    interface: &'static str,
-    local_name: &'static str,
-    name: &'static str,
     attribute: &'static str,
     cache_slot: &'static str,
     initial_value: i32,
@@ -1240,9 +1237,6 @@ const SVG_ANIMATED_NUMBER_PROPERTIES: &[SvgAnimatedNumberProperty] = &[
 const SVG_ANIMATED_INTEGER_PROPERTIES: &[SvgAnimatedIntegerProperty] = &[
     SvgAnimatedIntegerProperty {
         index: 0,
-        interface: "SVGFEConvolveMatrixElement",
-        local_name: "feConvolveMatrix",
-        name: "orderX",
         attribute: "order",
         cache_slot: SVG_FE_CONVOLVE_MATRIX_ORDER_X_SLOT,
         initial_value: 3,
@@ -1250,9 +1244,6 @@ const SVG_ANIMATED_INTEGER_PROPERTIES: &[SvgAnimatedIntegerProperty] = &[
     },
     SvgAnimatedIntegerProperty {
         index: 1,
-        interface: "SVGFEConvolveMatrixElement",
-        local_name: "feConvolveMatrix",
-        name: "orderY",
         attribute: "order",
         cache_slot: SVG_FE_CONVOLVE_MATRIX_ORDER_Y_SLOT,
         initial_value: 3,
@@ -1260,9 +1251,6 @@ const SVG_ANIMATED_INTEGER_PROPERTIES: &[SvgAnimatedIntegerProperty] = &[
     },
     SvgAnimatedIntegerProperty {
         index: 2,
-        interface: "SVGFEConvolveMatrixElement",
-        local_name: "feConvolveMatrix",
-        name: "targetX",
         attribute: "targetX",
         cache_slot: SVG_FE_CONVOLVE_MATRIX_TARGET_X_SLOT,
         initial_value: 0,
@@ -1270,9 +1258,6 @@ const SVG_ANIMATED_INTEGER_PROPERTIES: &[SvgAnimatedIntegerProperty] = &[
     },
     SvgAnimatedIntegerProperty {
         index: 3,
-        interface: "SVGFEConvolveMatrixElement",
-        local_name: "feConvolveMatrix",
-        name: "targetY",
         attribute: "targetY",
         cache_slot: SVG_FE_CONVOLVE_MATRIX_TARGET_Y_SLOT,
         initial_value: 0,
@@ -1280,9 +1265,6 @@ const SVG_ANIMATED_INTEGER_PROPERTIES: &[SvgAnimatedIntegerProperty] = &[
     },
     SvgAnimatedIntegerProperty {
         index: 4,
-        interface: "SVGFETurbulenceElement",
-        local_name: "feTurbulence",
-        name: "numOctaves",
         attribute: "numOctaves",
         cache_slot: SVG_FE_TURBULENCE_NUM_OCTAVES_SLOT,
         initial_value: 1,

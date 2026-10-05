@@ -511,7 +511,7 @@ pub(super) fn reflect_svg_animated_boolean_to_owner_attribute<'s>(
     let value = get_private_value(scope, animated, SVG_ANIMATED_BOOLEAN_BASE_VAL_SLOT)
         .is_some_and(|value| value.is_true());
     let Ok((runtime_ptr, handle)) =
-        crate::native_bridge::node_runtime_and_handle_from_object(scope, owner)
+        crate::native_bridge::node_runtime_and_handle_from_object_or_detached(scope, owner)
     else {
         return;
     };
@@ -734,7 +734,7 @@ pub(super) fn reflect_svg_animated_integer_to_owner_attribute<'s>(
         }
     };
     let Ok((runtime_ptr, handle)) =
-        crate::native_bridge::node_runtime_and_handle_from_object(scope, owner)
+        crate::native_bridge::node_runtime_and_handle_from_object_or_detached(scope, owner)
     else {
         return;
     };
@@ -896,7 +896,7 @@ pub(super) fn reflect_svg_animated_enumeration_to_owner_attribute<'s>(
         return;
     };
     let Ok((runtime_ptr, handle)) =
-        crate::native_bridge::node_runtime_and_handle_from_object(scope, owner)
+        crate::native_bridge::node_runtime_and_handle_from_object_or_detached(scope, owner)
     else {
         return;
     };
