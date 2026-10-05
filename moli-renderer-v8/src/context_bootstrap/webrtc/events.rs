@@ -3,12 +3,13 @@ use crate::web_api_interfaces;
 use crate::{
     context_bootstrap::events::{initialize_event_object_with_type, parse_event_init},
     util::{
-        apply_webidl_constructor_prototype_fallback, callback_data_index_value, callback_data_item,
-        get_private_value, throw_type_error, v8str,
+        callback_data_index_value, callback_data_item, get_private_value, throw_type_error, v8str,
     },
     webidl::{self, WebIdlConverter},
 };
-use moli_webapi_declare::{WebApiFunctionTemplate, WebApiObject};
+use moli_webapi_declare::{
+    WebApiFunctionTemplate, WebApiObject, initialize_web_api_constructor_receiver,
+};
 
 const ICE_EVENT_CANDIDATE_SLOT: &str = "__moliRtcIceEventCandidate";
 const ICE_EVENT_URL_SLOT: &str = "__moliRtcIceEventUrl";
@@ -225,6 +226,9 @@ fn construct_event<'s>(
         }
     }
     let event = args.this();
+    if !initialize_web_api_constructor_receiver(scope, event, name) {
+        return;
+    }
     initialize_event_object_with_type(scope, event, event_type, bubbles, cancelable);
     let initialized = match kind {
         EventKind::IceCandidate => {
@@ -240,7 +244,6 @@ fn construct_event<'s>(
     if initialized.is_err() {
         return;
     }
-    apply_webidl_constructor_prototype_fallback(scope, event, args.new_target(), name);
     rv.set(event.into());
 }
 
