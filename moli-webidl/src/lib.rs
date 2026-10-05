@@ -57,12 +57,14 @@
 
 extern crate self as moli_webidl;
 
+mod buffer_source;
 mod convert;
 mod error;
 mod helpers;
 mod traits;
 mod types;
 
+pub use buffer_source::AllowSharedBufferSource;
 pub use convert::{
     argument, argument_with_options, convert, convert_optional_sequence, convert_with_options,
     legacy_bool_member_or, legacy_number_member_or, legacy_optional_member,
@@ -88,7 +90,7 @@ pub use moli_webidl_derive::{WebIdlArgs, WebIdlDictionary, WebIdlEnum};
 pub use traits::{ParseOutcome, WebIdlArguments, WebIdlConverter, WebIdlDictionary, WebIdlEnum};
 pub use types::{
     Boolean, BufferSource, ByteString, ClampedUnsignedShort, Dictionary, DomString, DomString16,
-    Double, EnforceRangeLong, EnforceRangeUnsignedLong, EnforceRangeUnsignedLongLong, EnumValue,
+    Double, EnforceRangeLong, EnforceRangeLongLong, EnforceRangeUnsignedLong, EnforceRangeUnsignedLongLong, EnumValue,
     EventListenerOptions, InterfaceObject, InterfaceOptions, Long, Record, Sequence, Short,
     StringOptions, UnrestrictedDouble, UnsignedLong, UnsignedLongLong, UnsignedShort, UsvString,
 };

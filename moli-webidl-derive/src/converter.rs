@@ -15,6 +15,7 @@ pub(crate) enum ConverterKind {
     CallbackInterface,
     Long,
     EnforceRangeLong,
+    EnforceRangeLongLong,
     Short,
     UnsignedShort,
     ClampedUnsignedShort,
@@ -48,6 +49,7 @@ impl ConverterKind {
             "callback_interface" => Ok(Self::CallbackInterface),
             "long" => Ok(Self::Long),
             "enforce_range_long" => Ok(Self::EnforceRangeLong),
+            "enforce_range_long_long" => Ok(Self::EnforceRangeLongLong),
             "short" => Ok(Self::Short),
             "unsigned_short" => Ok(Self::UnsignedShort),
             "clamped_unsigned_short" => Ok(Self::ClampedUnsignedShort),
@@ -78,6 +80,7 @@ impl ConverterKind {
             Self::CallbackInterface => quote!(::moli_webidl::WebIdlCallbackInterface),
             Self::Long => quote!(::moli_webidl::Long),
             Self::EnforceRangeLong => quote!(::moli_webidl::EnforceRangeLong),
+            Self::EnforceRangeLongLong => quote!(::moli_webidl::EnforceRangeLongLong),
             Self::Short => quote!(::moli_webidl::Short),
             Self::UnsignedShort => quote!(::moli_webidl::UnsignedShort),
             Self::ClampedUnsignedShort => quote!(::moli_webidl::ClampedUnsignedShort),
@@ -117,6 +120,7 @@ impl ConverterKind {
             Self::CallbackFunction | Self::CallbackInterface => quote!(#expr),
             Self::Long => quote!(::moli_webidl::Long(#expr)),
             Self::EnforceRangeLong => quote!(::moli_webidl::EnforceRangeLong(#expr)),
+            Self::EnforceRangeLongLong => quote!(::moli_webidl::EnforceRangeLongLong(#expr)),
             Self::Short => quote!(::moli_webidl::Short(#expr)),
             Self::UnsignedShort => quote!(::moli_webidl::UnsignedShort(#expr)),
             Self::ClampedUnsignedShort => {
@@ -151,6 +155,7 @@ impl ConverterKind {
             | Self::UsvString
             | Self::Long
             | Self::EnforceRangeLong
+            | Self::EnforceRangeLongLong
             | Self::Short
             | Self::UnsignedShort
             | Self::ClampedUnsignedShort
