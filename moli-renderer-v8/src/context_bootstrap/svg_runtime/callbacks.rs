@@ -480,7 +480,7 @@ pub(super) fn svg_length_setter<'s>(
     }
     match name {
         "value" | "valueInSpecifiedUnits" => {
-            let value = match webidl::convert::<webidl::UnrestrictedDouble>(
+            let value = match webidl::convert::<webidl::Double>(
                 scope,
                 args.get(0),
                 webidl::Context::member("SVGLength", "value"),
@@ -507,7 +507,10 @@ pub(super) fn svg_length_setter<'s>(
                     return;
                 }
             };
-            let parsed = parse_svg_length_value(&string_value).unwrap_or_default();
+            let Some(parsed) = parse_svg_length_value(&string_value) else {
+                throw_dom_exception(scope, "SyntaxError", 12, "Invalid SVG length value.");
+                return;
+            };
             set_svg_length_parsed_value(scope, args.this(), parsed);
             reflect_svg_length_to_owner_attribute(scope, args.this());
             reflect_svg_value_list_item_to_owner_list(scope, args.this(), SvgListKind::Length);
@@ -1733,8 +1736,18 @@ pub(super) fn svg_length_new_value_specified_units_callback<'s>(
     else {
         return;
     };
+    if !svg_length_unit_type_is_supported(parsed.unit_type as u32) {
+        throw_dom_exception(
+            scope,
+            "NotSupportedError",
+            9,
+            "The SVG length unit type is not supported.",
+        );
+        return;
+    }
     set_svg_length_numeric_value(scope, args.this(), parsed.value, parsed.unit_type as u32);
     reflect_svg_length_to_owner_attribute(scope, args.this());
+    reflect_svg_value_list_item_to_owner_list(scope, args.this(), SvgListKind::Length);
     rv.set_undefined();
 }
 
@@ -1748,8 +1761,18 @@ pub(super) fn svg_length_convert_to_specified_units_callback<'s>(
         return;
     };
     let value = svg_length_number_slot(scope, args.this(), SVG_LENGTH_VALUE_SLOT).unwrap_or(0.0);
+    if !svg_length_unit_type_is_supported(parsed.unit_type as u32) {
+        throw_dom_exception(
+            scope,
+            "NotSupportedError",
+            9,
+            "The SVG length unit type is not supported.",
+        );
+        return;
+    }
     set_svg_length_numeric_value(scope, args.this(), value, parsed.unit_type as u32);
     reflect_svg_length_to_owner_attribute(scope, args.this());
+    reflect_svg_value_list_item_to_owner_list(scope, args.this(), SvgListKind::Length);
     rv.set_undefined();
 }
 
@@ -1939,4 +1962,8 @@ pub(super) fn svg_text_content_select_substring_callback<'s>(
     };
     let _ = (parsed.charnum, parsed.nchars);
     rv.set_undefined();
+}
+
+fn svg_length_unit_type_is_supported(unit_type: u32) -> bool {
+    (SVG_LENGTH_TYPE_NUMBER..=SVG_LENGTH_TYPE_PC).contains(&unit_type)
 }
