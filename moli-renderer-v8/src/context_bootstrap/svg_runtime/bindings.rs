@@ -432,7 +432,7 @@ struct SvgMatrixTemplateMethodsDeclaration {
 }
 
 #[derive(WebApiFunctionTemplate)]
-#[webapi(interface = web_api_interfaces::SVGGraphicsElement, enumerable)]
+#[webapi(interface = web_api_interfaces::SVGGraphicsElement, enumerable, receiver)]
 struct SvgGraphicsElementTemplateMethodsDeclaration {
     #[webapi(method = "getBBox", length = 0, callback = svg_graphics_get_bbox_callback)]
     get_bbox: (),
@@ -449,7 +449,7 @@ struct SvgGraphicsElementTemplateMethodsDeclaration {
 }
 
 #[derive(WebApiFunctionTemplate)]
-#[webapi(interface = web_api_interfaces::SVGGeometryElement, enumerable)]
+#[webapi(interface = web_api_interfaces::SVGGeometryElement, enumerable, receiver)]
 struct SvgGeometryElementTemplateMethodsDeclaration {
     #[webapi(
         method = "isPointInFill",

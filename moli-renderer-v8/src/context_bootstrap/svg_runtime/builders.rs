@@ -1321,7 +1321,8 @@ pub(super) fn svg_geometry_element<'s>(
     element: v8::Local<'s, v8::Object>,
 ) -> Option<SvgGeometryElement> {
     let (runtime_ptr, handle) =
-        crate::native_bridge::node_runtime_and_handle_from_object(scope, element).ok()?;
+        crate::native_bridge::node_runtime_and_handle_from_object_or_detached(scope, element)
+            .ok()?;
     svg_geometry_element_for_handle(unsafe { &*runtime_ptr }, handle)
 }
 
@@ -1443,7 +1444,8 @@ pub(super) fn svg_graphics_bounding_box<'s>(
     element: v8::Local<'s, v8::Object>,
 ) -> Option<SvgGeometryBox> {
     let (runtime_ptr, handle) =
-        crate::native_bridge::node_runtime_and_handle_from_object(scope, element).ok()?;
+        crate::native_bridge::node_runtime_and_handle_from_object_or_detached(scope, element)
+            .ok()?;
     let runtime = unsafe { &*runtime_ptr };
     let node = runtime.dom_host().node(handle)?;
     if !node.is_connected() || svg_bbox_has_non_rendered_ancestor(runtime, handle) {
@@ -1781,12 +1783,25 @@ fn svg_element_has_display_none(
         .eq_ignore_ascii_case("none")
 }
 
-pub(super) fn svg_fill_allows_paint<'s>(
+pub(super) fn svg_geometry_fill_rule<'s>(
     scope: &mut v8::PinScope<'s, '_>,
     element: v8::Local<'s, v8::Object>,
-) -> bool {
-    svg_owner_attribute_value(scope, element, "fill")
-        .is_none_or(|fill| !fill.trim().eq_ignore_ascii_case("none"))
+) -> svg_geometry::SvgFillRule {
+    let Ok((runtime_ptr, handle)) =
+        crate::native_bridge::node_runtime_and_handle_from_object_or_detached(scope, element)
+    else {
+        return svg_geometry::SvgFillRule::NonZero;
+    };
+    let rule = crate::native_bridge::element::computed_style_property_for_handle(
+        unsafe { &*runtime_ptr },
+        handle,
+        "fill-rule",
+    );
+    if rule.trim().eq_ignore_ascii_case("evenodd") {
+        svg_geometry::SvgFillRule::EvenOdd
+    } else {
+        svg_geometry::SvgFillRule::NonZero
+    }
 }
 
 pub(super) fn svg_list_item_or_throw<'s>(
