@@ -54,6 +54,10 @@
 //! metadata and optional `brand_check` as scalar interface fields. Conversion
 //! reuses the runtime iterator and converts each item before reading the next.
 //! `sequence` converts one iterable argument; `variadic` converts argument tails.
+//!
+//! Uint8Array fields retain the native view identity and reject shared,
+//! resizable and growable buffers by default. `#[webidl(allow_shared)]` permits
+//! fixed shared storage, as required by `[AllowShared] Uint8Array` arguments.
 
 extern crate self as moli_webidl;
 
@@ -92,8 +96,8 @@ pub use types::{
     Boolean, BufferSource, ByteString, ClampedUnsignedShort, Dictionary, DomString, DomString16,
     Double, EnforceRangeLong, EnforceRangeLongLong, EnforceRangeUnsignedLong,
     EnforceRangeUnsignedLongLong, EnumValue, EventListenerOptions, InterfaceObject,
-    InterfaceOptions, Long, Record, Sequence, Short, StringOptions, UnrestrictedDouble,
-    UnsignedLong, UnsignedLongLong, UnsignedShort, UsvString,
+    InterfaceOptions, Long, Record, Sequence, Short, StringOptions, Uint8ArrayOptions,
+    UnrestrictedDouble, UnsignedLong, UnsignedLongLong, UnsignedShort, UsvString,
 };
 
 /// Restricted WebIDL float represented as a finite binary32 value.
