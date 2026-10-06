@@ -189,14 +189,36 @@ fn svg_box(bounds: Rect) -> SvgGeometryBox {
     }
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum SvgFillRule {
+    NonZero,
+    EvenOdd,
+}
+
 pub fn is_point_in_fill(element: &SvgGeometryElement, point: SvgGeometryPoint) -> bool {
-    if matches!(element, SvgGeometryElement::Line { .. }) {
+    is_point_in_fill_with_rule(element, point, SvgFillRule::NonZero)
+}
+
+pub fn is_point_in_fill_with_rule(
+    element: &SvgGeometryElement,
+    point: SvgGeometryPoint,
+    fill_rule: SvgFillRule,
+) -> bool {
+    if !point.x.is_finite()
+        || !point.y.is_finite()
+        || matches!(element, SvgGeometryElement::Line { .. })
+    {
         return false;
     }
     geometry_path(element).is_some_and(|path| {
         let path = close_subpaths_for_fill(&path);
         let point = Point::new(point.x, point.y);
-        path.winding(point) != 0
+        let winding = path.winding(point);
+        let inside = match fill_rule {
+            SvgFillRule::NonZero => winding != 0,
+            SvgFillRule::EvenOdd => winding % 2 != 0,
+        };
+        inside
             || path.segments().any(|segment| {
                 segment.nearest(point, FILL_BOUNDARY_EPSILON).distance_sq
                     <= FILL_BOUNDARY_EPSILON.powi(2)
