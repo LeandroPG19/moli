@@ -119,6 +119,10 @@ impl JsContextHost {
             .collect::<Vec<_>>();
         realm_tokens.sort_unstable();
         realm_tokens.dedup();
+        let resource_owner_id = self
+            .window_default_context_bootstrap
+            .as_ref()
+            .map(|config| config.resource_owner_id);
 
         for realm_token in realm_tokens {
             self.cancel_timers_for_context_token(realm_token);
@@ -135,7 +139,7 @@ impl JsContextHost {
             self.retire_window_messages_for_context_token(realm_token);
             self.close_broadcast_channels_for_context_token(realm_token);
             self.retire_websockets_for_context_token(realm_token);
-            self.retire_window_execution_contexts_for_context_token(realm_token);
+            self.retire_window_execution_contexts_for_context_token(realm_token, resource_owner_id);
         }
 
         for owner in owners {
@@ -458,11 +462,12 @@ impl JsContextHost {
     pub(crate) fn retire_window_execution_contexts_for_context_token(
         &mut self,
         context_token: RuntimeObservableContextToken,
-        resource_owner_id: crate::resource_owner::ResourceOwnerId,
+        resource_owner_id: Option<crate::resource_owner::ResourceOwnerId>,
     ) -> usize {
         self.animation_frames.retire_realm(context_token);
-        let revoked_blob_object_url_count =
-            crate::blob::cleanup_object_urls_for_context(resource_owner_id, context_token);
+        let revoked_blob_object_url_count = resource_owner_id.map_or(0, |owner_id| {
+            crate::blob::cleanup_object_urls_for_context(owner_id, context_token)
+        });
         crate::observer_runtime::retire_context_token(self, context_token);
         let indexed_db_retirement = self.retire_indexed_db_context(context_token);
         let retired_indexed_db_connections = indexed_db_retirement.retired_connections.len();
