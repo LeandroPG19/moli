@@ -25,6 +25,7 @@ mod callbacks;
 mod filters;
 mod number_list_attributes;
 mod rect;
+mod tree;
 
 pub(crate) use number_list_attributes::{
     NumberListAttributeProjection, apply_number_list_attribute_projections,
