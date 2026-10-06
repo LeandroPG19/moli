@@ -49,6 +49,17 @@ impl NativeDomBridge {
         host_ptr: *mut JsContextHost,
         handle: BridgeHandle,
     ) -> Option<v8::Local<'s, v8::Object>> {
+        let current = scope.get_current_context();
+        if crate::util::context_host_ptr_from_context_slot(current) != Some(host_ptr)
+            && let Some(producer) = unsafe { &*host_ptr }.page_default_context(scope)
+            && super::super::identity::contexts_share_wrapper_world(current, producer)
+        {
+            // Related default worlds share canonical wrappers. Create even a
+            // cold wrapper in its producer realm so its context identifies the
+            // owning host and supplies the producer's interface prototypes.
+            let scope = &mut v8::ContextScope::new(scope, producer);
+            return self.wrap_bridge_handle(scope, host_ptr, handle);
+        }
         let reflector_id = self.identity.reflector_id(&handle);
         if let Some(wrapper) = self.identity.cached_wrapper(scope, reflector_id) {
             return Some(wrapper);
