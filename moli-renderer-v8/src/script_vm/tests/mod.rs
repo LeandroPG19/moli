@@ -2316,6 +2316,7 @@ mod storage_dense_name_arrays;
 mod streams;
 mod string_timers;
 mod svg_animation_interfaces;
+mod svg_element_receivers;
 mod svg_filter_interfaces;
 mod svg_geometry_receivers;
 mod svg_number_validation;
