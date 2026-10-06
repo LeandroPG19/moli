@@ -1012,7 +1012,7 @@ pub(in crate::runtime) fn observe_document_lifecycle_on_entry(
     entry.observe_document_lifecycle(document, target_stage)
 }
 
-pub(super) fn reconcile_page_creation_lifecycle_observation(
+pub(in crate::runtime) fn reconcile_navigation_follow_lifecycle_observation(
     observation: DocumentLifecycleObserverOutcome,
     has_pending_navigation_from_observed_document: bool,
 ) -> DocumentLifecycleObserverOutcome {
@@ -1023,9 +1023,9 @@ pub(super) fn reconcile_page_creation_lifecycle_observation(
         DocumentLifecycleObserverOutcome::Interrupted(termination)
             if has_pending_navigation_from_observed_document
                 && termination.reason == crate::runtime::RendererDocumentTerminationReason::SupersededByCrossDocumentNavigation => {
-            // A queued browser task can start navigation before the creation
-            // milestone. Follow that exact Document's request; unrelated
-            // lifecycle termination must still retire the pending creation.
+            // A queued browser task can start another navigation before the
+            // awaited milestone. Follow that exact Document's request;
+            // unrelated termination still interrupts the lifecycle wait.
             DocumentLifecycleObserverOutcome::NavigationPending
         }
         observation => observation,

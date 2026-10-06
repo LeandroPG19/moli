@@ -251,7 +251,7 @@ mod navigation_dispatch_tests {
     #[test]
     fn page_creation_prioritizes_navigation_enqueued_by_reached_milestone() {
         assert_eq!(
-            reconcile_page_creation_lifecycle_observation(
+            reconcile_navigation_follow_lifecycle_observation(
                 DocumentLifecycleObserverOutcome::Reached,
                 true,
             ),
@@ -268,7 +268,7 @@ mod navigation_dispatch_tests {
         };
 
         assert_eq!(
-            reconcile_page_creation_lifecycle_observation(
+            reconcile_navigation_follow_lifecycle_observation(
                 DocumentLifecycleObserverOutcome::Interrupted(termination),
                 true,
             ),
@@ -285,7 +285,7 @@ mod navigation_dispatch_tests {
         };
         for has_exact_request in [false, true] {
             assert_eq!(
-                reconcile_page_creation_lifecycle_observation(
+                reconcile_navigation_follow_lifecycle_observation(
                     DocumentLifecycleObserverOutcome::Interrupted(termination),
                     has_exact_request,
                 ),

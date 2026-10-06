@@ -519,6 +519,15 @@ impl RendererOwnerHandle {
             Err(error) => return Err(error).into(),
         };
         let observation = observe_document_lifecycle_on_entry(&mut entry, document, target_stage);
+        let observation =
+            crate::runtime::owner_local_store::reconcile_navigation_follow_lifecycle_observation(
+                observation,
+                entry
+                    .page_vm()
+                    .vm()
+                    .pending_location_navigation_source_document()
+                    == Some(document),
+            );
         match observation {
             DocumentLifecycleObserverOutcome::NavigationPending
                 if completion.returns_with_pending_location_navigation() =>
