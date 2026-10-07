@@ -2236,6 +2236,7 @@ mod cross_origin_symbol_fallback;
 mod cross_origin_window_indexes;
 mod cross_origin_window_names;
 mod device_events;
+mod document_svg_root;
 mod dom_elements;
 mod dom_exception_proxy_identity;
 mod dom_rect_factory_descriptors;
