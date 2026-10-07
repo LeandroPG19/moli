@@ -3850,6 +3850,15 @@ fn resolve_svg_length_without_context(value: f64, unit: SvgLengthUnit) -> Option
     if let Some(value) = resolve_svg_absolute_length(value, unit) {
         return Some(value);
     }
+    if matches!(unit, SvgLengthUnit::Ems | SvgLengthUnit::Exs) {
+        // SVGLength without an associated element uses the initial font size,
+        // independently of the element on which createSVGLength was called.
+        let context = moli_css_parse::CssNumericContext {
+            font_size_px: Some(crate::style_engine::initial_font_size_px()),
+            ..Default::default()
+        };
+        return resolve_svg_length_in_context(value, unit, 100.0, context);
+    }
     matches!(unit, SvgLengthUnit::Percentage).then_some(value)
 }
 

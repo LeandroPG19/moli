@@ -2320,6 +2320,7 @@ mod string_timers;
 mod svg_animated_number;
 mod svg_animation_interfaces;
 mod svg_cors_attributes;
+mod svg_detached_lengths;
 mod svg_element_receivers;
 mod svg_filter_enumerations;
 mod svg_filter_interfaces;
