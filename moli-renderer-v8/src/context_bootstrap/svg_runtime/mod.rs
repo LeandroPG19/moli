@@ -25,6 +25,7 @@ mod callbacks;
 mod cors;
 mod filters;
 mod number_list_attributes;
+mod path_data;
 mod rect;
 mod tree;
 
@@ -395,8 +396,8 @@ struct SvgAnimatedEnumerationBaseValArgs {
 #[derive(webidl::WebIdlArgs)]
 #[webidl(prefix = "SVGGeometryElement.getPointAtLength")]
 struct SvgGeometryPointAtLengthArgs {
-    #[webidl(required, converter = "double")]
-    distance: f64,
+    #[webidl(required, converter = "float")]
+    distance: f32,
 }
 
 #[derive(webidl::WebIdlArgs)]
