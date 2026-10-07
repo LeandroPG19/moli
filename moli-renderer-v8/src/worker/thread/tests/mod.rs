@@ -1549,3 +1549,5 @@ mod tls;
 mod trusted_types_reporting;
 mod wasm_csp;
 mod xhr_failure;
+
+mod path2d_native;
