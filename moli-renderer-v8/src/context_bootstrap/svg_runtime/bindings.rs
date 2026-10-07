@@ -546,7 +546,7 @@ struct SvgTextContentElementTemplateMethodsDeclaration {
 
     #[webapi(
         method = "getCharNumAtPosition",
-        length = 1,
+        length = 0,
         callback = svg_text_content_get_char_num_at_position_callback
     )]
     get_char_num_at_position: (),
