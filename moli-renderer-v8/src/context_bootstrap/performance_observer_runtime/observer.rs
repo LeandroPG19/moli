@@ -23,6 +23,8 @@ struct PerformanceObserverObjectDeclaration<'s> {
     pending: (),
     #[webapi(slot = PERFORMANCE_OBSERVER_TYPE_SLOT, init = "null")]
     observed_type: (),
+    #[webapi(slot = PERFORMANCE_OBSERVER_MODE_SLOT, init = 0)]
+    observe_mode: (),
     #[webapi(slot = PERFORMANCE_OBSERVER_ENTRY_TYPES_SLOT, init = "array")]
     entry_types: (),
     #[webapi(slot = PERFORMANCE_OBSERVER_ACTIVE_SLOT, init = false)]
@@ -44,9 +46,9 @@ struct PerformanceObserverConstructorArgs {
 
 #[derive(webidl::WebIdlArgs)]
 #[webidl(prefix = "PerformanceObserver.observe")]
-struct PerformanceObserverObserveArgs<'s> {
-    #[webidl(required)]
-    options: v8::Local<'s, v8::Object>,
+struct PerformanceObserverObserveArgs {
+    #[webidl(required, dictionary)]
+    options: PerformanceObserverInit,
 }
 
 #[derive(Default, webidl::WebIdlDictionary)]
@@ -56,8 +58,17 @@ struct PerformanceObserverInit {
     observed_type: Option<String>,
     #[webidl(converter = "raw")]
     entry_types: Option<webidl::Sequence<webidl::DomString>>,
-    #[webidl(default = false)]
-    buffered: bool,
+    buffered: Option<bool>,
+    #[webidl(converter = "double")]
+    duration_threshold: Option<f64>,
+}
+
+#[derive(Clone, Copy, PartialEq)]
+#[repr(u32)]
+enum ObserveMode {
+    Undefined = 0,
+    Single = 1,
+    Multiple = 2,
 }
 
 pub(in crate::context_bootstrap) fn performance_observer_constructor_callback<'s>(
@@ -127,20 +138,15 @@ pub(in crate::context_bootstrap) fn performance_observer_observe_callback<'s>(
     let Some(parsed) = webidl::parse_args::<PerformanceObserverObserveArgs>(scope, &args) else {
         return;
     };
-    let init =
-        match webidl::parse_dictionary_object::<PerformanceObserverInit>(scope, parsed.options) {
-            Ok(init) => init,
-            Err(error) => {
-                webidl::throw_error(scope, &error);
-                return;
-            }
-        };
+    let init = parsed.options;
     let has_entry_types_member = init.entry_types.is_some();
     let has_type_member = init.observed_type.is_some();
-    if has_entry_types_member && has_type_member {
+    if has_entry_types_member
+        && (has_type_member || init.buffered.is_some() || init.duration_threshold.is_some())
+    {
         throw_type_error(
             scope,
-            "PerformanceObserver.observe options must not include both type and entryTypes.",
+            "PerformanceObserver.observe entryTypes must not be combined with other options.",
         );
         return;
     }
@@ -152,11 +158,13 @@ pub(in crate::context_bootstrap) fn performance_observer_observe_callback<'s>(
         return;
     }
 
-    let current_type_mode = performance_observer_type_slot_is_set(scope, args.this());
-    let current_entry_types_mode = !current_type_mode
-        && performance_observer_entry_types(scope, args.this())
-            .is_some_and(|entry_types| entry_types.length() > 0);
-    if has_entry_types_member && current_type_mode {
+    let requested_mode = if has_entry_types_member {
+        ObserveMode::Multiple
+    } else {
+        ObserveMode::Single
+    };
+    let current_mode = performance_observer_mode(scope, args.this());
+    if current_mode == ObserveMode::Single && requested_mode == ObserveMode::Multiple {
         webidl::throw_dom_exception(
             scope,
             "InvalidModificationError",
@@ -164,13 +172,23 @@ pub(in crate::context_bootstrap) fn performance_observer_observe_callback<'s>(
         );
         return;
     }
-    if has_type_member && current_entry_types_mode {
+    if current_mode == ObserveMode::Multiple && requested_mode == ObserveMode::Single {
         webidl::throw_dom_exception(
             scope,
             "InvalidModificationError",
             "This PerformanceObserver has performed observe({entryTypes: ...}) and cannot observe type.",
         );
         return;
+    }
+    if current_mode == ObserveMode::Undefined {
+        // Choosing a mode precedes support filtering, which may abort registration.
+        let value = v8::Integer::new_from_unsigned(scope, requested_mode as u32);
+        set_performance_observer_slot_value(
+            scope,
+            args.this(),
+            PERFORMANCE_OBSERVER_MODE_SLOT,
+            value.into(),
+        );
     }
 
     let observed_entry_types = if let Some(observed_type) = init.observed_type.as_deref() {
@@ -256,7 +274,7 @@ pub(in crate::context_bootstrap) fn performance_observer_observe_callback<'s>(
         return;
     }
     set_performance_observer_active(scope, args.this(), true);
-    if init.buffered && has_type_member {
+    if init.buffered.unwrap_or(false) && has_type_member {
         enqueue_buffered_performance_entries(scope, args.this());
         queue_performance_observer_delivery(scope, args.this());
     }
@@ -276,6 +294,9 @@ pub(in crate::context_bootstrap) fn performance_observer_disconnect_callback<'s>
     }
     let pending = v8::Array::new(scope, 0);
     set_performance_observer_pending(scope, args.this(), pending);
+    let entry_types = v8::Array::new(scope, 0);
+    set_performance_observer_entry_types(scope, args.this(), entry_types);
+    set_performance_observer_type(scope, args.this(), v8::null(scope).into());
     rv.set_undefined();
 }
 
@@ -305,12 +326,18 @@ fn performance_entry_types_array_from_strings<'s>(
     serialize_v8_iter_array(scope, entry_types).unwrap_or_else(|| v8::Array::new(scope, 0))
 }
 
-fn performance_observer_type_slot_is_set<'s>(
+fn performance_observer_mode<'s>(
     scope: &mut v8::PinScope<'s, '_>,
     observer: v8::Local<'s, v8::Object>,
-) -> bool {
-    performance_observer_slot_value(scope, observer, PERFORMANCE_OBSERVER_TYPE_SLOT)
-        .is_some_and(|value| !value.is_null_or_undefined())
+) -> ObserveMode {
+    match performance_observer_slot_value(scope, observer, PERFORMANCE_OBSERVER_MODE_SLOT)
+        .and_then(|value| v8::Local::<v8::Uint32>::try_from(value).ok())
+        .map(|value| value.value())
+    {
+        Some(1) => ObserveMode::Single,
+        Some(2) => ObserveMode::Multiple,
+        _ => ObserveMode::Undefined,
+    }
 }
 
 fn performance_observer_entry_type_supported(
