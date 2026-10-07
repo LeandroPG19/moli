@@ -27,6 +27,7 @@ pub(crate) enum ConverterKind {
     UnsignedLongLong,
     EnforceRangeUnsignedLongLong,
     Float,
+    UnrestrictedFloat,
     Double,
     UnrestrictedDouble,
     Boolean,
@@ -63,6 +64,7 @@ impl ConverterKind {
             "unsigned_long_long" => Ok(Self::UnsignedLongLong),
             "enforce_range_unsigned_long_long" => Ok(Self::EnforceRangeUnsignedLongLong),
             "float" => Ok(Self::Float),
+            "unrestricted_float" => Ok(Self::UnrestrictedFloat),
             "double" => Ok(Self::Double),
             "unrestricted_double" => Ok(Self::UnrestrictedDouble),
             "boolean" => Ok(Self::Boolean),
@@ -100,6 +102,7 @@ impl ConverterKind {
                 quote!(::moli_webidl::EnforceRangeUnsignedLongLong)
             }
             Self::Float => quote!(::moli_webidl::Float),
+            Self::UnrestrictedFloat => quote!(::moli_webidl::UnrestrictedFloat),
             Self::Double => quote!(::moli_webidl::Double),
             Self::UnrestrictedDouble => quote!(::moli_webidl::UnrestrictedDouble),
             Self::Boolean => quote!(::moli_webidl::Boolean),
@@ -146,6 +149,7 @@ impl ConverterKind {
                 quote!(::moli_webidl::EnforceRangeUnsignedLongLong(#expr))
             }
             Self::Float => quote!(::moli_webidl::Float(#expr)),
+            Self::UnrestrictedFloat => quote!(::moli_webidl::UnrestrictedFloat(#expr)),
             Self::Double => quote!(::moli_webidl::Double(#expr)),
             Self::UnrestrictedDouble => quote!(::moli_webidl::UnrestrictedDouble(#expr)),
             Self::Boolean => quote!(::moli_webidl::Boolean(#expr)),
@@ -177,6 +181,7 @@ impl ConverterKind {
             | Self::UnsignedLongLong
             | Self::EnforceRangeUnsignedLongLong
             | Self::Float
+            | Self::UnrestrictedFloat
             | Self::Double
             | Self::UnrestrictedDouble
             | Self::Boolean
