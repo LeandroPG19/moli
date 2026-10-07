@@ -2239,6 +2239,7 @@ mod cross_origin_window_indexes;
 mod cross_origin_window_names;
 mod device_events;
 mod document_create_event;
+mod document_import_adopt_webidl;
 mod document_svg_root;
 mod dom_elements;
 mod dom_exception_proxy_identity;
