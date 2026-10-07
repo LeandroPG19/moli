@@ -1,4 +1,5 @@
 use super::*;
+use crate::context_bootstrap::events::EventInit;
 use crate::context_bootstrap::file_api::is_branded_data_transfer_object;
 use crate::context_bootstrap::history_mutation::document_can_have_url_rewritten;
 use crate::context_bootstrap::location_runtime::location_href_slot;
@@ -142,12 +143,8 @@ struct NavigateEventMethodsDeclaration {
 #[derive(webidl::WebIdlDictionary)]
 #[webidl(prefix = "ClipboardEventInit")]
 pub(super) struct ClipboardEventInitMembers<'scope> {
-    #[webidl(default = false)]
-    bubbles: bool,
-    #[webidl(default = false)]
-    cancelable: bool,
-    #[webidl(default = false)]
-    composed: bool,
+    #[webidl(inherit)]
+    base: EventInit,
     #[webidl(name = "clipboardData", with = clipboard_event_clipboard_data_member)]
     clipboard_data: v8::Local<'scope, v8::Value>,
 }
@@ -157,12 +154,8 @@ pub(super) struct ClipboardEventInitMembers<'scope> {
 #[derive(webidl::WebIdlDictionary)]
 #[webidl(prefix = "ClipboardChangeEventInit")]
 pub(super) struct ClipboardChangeEventInitMembers<'scope> {
-    #[webidl(default = false)]
-    bubbles: bool,
-    #[webidl(default = false)]
-    cancelable: bool,
-    #[webidl(default = false)]
-    composed: bool,
+    #[webidl(inherit)]
+    base: EventInit,
     #[webidl(name = "changeId", with = clipboard_change_event_change_id_member)]
     change_id: v8::Local<'scope, v8::BigInt>,
     #[webidl(with = clipboard_change_event_types_member)]
@@ -189,13 +182,13 @@ impl<'scope> webidl::WebIdlConverter<'scope> for ClipboardChangeEventType<'scope
 
 impl ClipboardEventInitMembers<'_> {
     pub(super) fn event_flags(&self) -> (bool, bool, bool) {
-        (self.bubbles, self.cancelable, self.composed)
+        (self.base.bubbles, self.base.cancelable, self.base.composed)
     }
 }
 
 impl ClipboardChangeEventInitMembers<'_> {
     pub(super) fn event_flags(&self) -> (bool, bool, bool) {
-        (self.bubbles, self.cancelable, self.composed)
+        (self.base.bubbles, self.base.cancelable, self.base.composed)
     }
 }
 
@@ -299,12 +292,8 @@ struct NavigateEventInitDeclaration<'scope> {
 #[derive(Default, webidl::WebIdlDictionary)]
 #[webidl(prefix = "StorageEventInit")]
 pub(super) struct StorageEventInitMembers<'s> {
-    #[webidl(default = false)]
-    bubbles: bool,
-    #[webidl(default = false)]
-    cancelable: bool,
-    #[webidl(default = false)]
-    composed: bool,
+    #[webidl(inherit)]
+    base: EventInit,
     #[webidl(nullable, converter = "raw")]
     key: Option<webidl::DomString16>,
     #[webidl(name = "newValue", nullable, converter = "raw")]
@@ -319,7 +308,7 @@ pub(super) struct StorageEventInitMembers<'s> {
 
 impl StorageEventInitMembers<'_> {
     pub(super) fn event_flags(&self) -> (bool, bool, bool) {
-        (self.bubbles, self.cancelable, self.composed)
+        (self.base.bubbles, self.base.cancelable, self.base.composed)
     }
 }
 
@@ -413,10 +402,8 @@ pub(super) fn parse_clipboard_event_init<'s>(
     };
     let Some(object) = object else {
         return Some(ClipboardEventInitMembers {
-            bubbles: false,
-            cancelable: false,
+            base: EventInit::default(),
             clipboard_data: v8::null(scope).into(),
-            composed: false,
         });
     };
     match webidl::parse_dictionary_object(scope, object) {
@@ -442,10 +429,8 @@ pub(super) fn parse_clipboard_change_event_init<'s>(
     };
     let Some(object) = object else {
         return Some(ClipboardChangeEventInitMembers {
-            bubbles: false,
-            cancelable: false,
+            base: EventInit::default(),
             change_id: v8::BigInt::new_from_u64(scope, 0),
-            composed: false,
             types: Vec::new(),
         });
     };

@@ -1,3 +1,4 @@
+use crate::context_bootstrap::events::EventInit;
 use crate::{
     context_bootstrap::events::{
         event_private_value, initialize_event_object_with_type, initialize_event_wrapper,
@@ -27,13 +28,9 @@ const PAYLOAD_SLOTS: &[&str] = &[
 #[derive(webidl::WebIdlDictionary)]
 #[webidl(prefix = "RTCPeerConnectionIceErrorEventInit")]
 struct Init {
+    #[webidl(inherit)]
+    base: EventInit,
     // EventInit precedes derived members, which are converted lexically.
-    #[webidl(default = false)]
-    bubbles: bool,
-    #[webidl(default = false)]
-    cancelable: bool,
-    #[webidl(default = false)]
-    composed: bool,
     #[webidl(nullable, converter = "raw")]
     address: Option<webidl::DomString16>,
     #[webidl(required)]
@@ -163,11 +160,11 @@ pub(in crate::context_bootstrap) fn rtc_peer_connection_ice_error_event_construc
         scope,
         state,
         event_type,
-        parsed.init.bubbles,
-        parsed.init.cancelable,
+        parsed.init.base.bubbles,
+        parsed.init.base.cancelable,
     );
     let declaration = StateDeclaration::new(
-        parsed.init.composed,
+        parsed.init.base.composed,
         address,
         parsed.init.error_code,
         error_text,
