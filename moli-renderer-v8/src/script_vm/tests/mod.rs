@@ -2326,6 +2326,7 @@ mod svg_geometry_methods;
 mod svg_geometry_receivers;
 mod svg_geometry_units;
 mod svg_number_validation;
+mod svg_redraw_methods;
 mod svg_root_factory_receivers;
 mod svg_switch_mpath_interfaces;
 mod svg_tree_queries;
