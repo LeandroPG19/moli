@@ -174,15 +174,6 @@ pub(crate) fn set_live_style_named_property_value<'s>(
     let Ok((runtime_ptr, handle, mode)) = style_runtime_and_handle_from_object(scope, style) else {
         return false;
     };
-    if mode == StyleMode::Computed {
-        crate::native_bridge::throw_dom_exception(
-            scope,
-            "NoModificationAllowedError",
-            7,
-            "Cannot modify a read-only CSSStyleDeclaration.",
-        );
-        return true;
-    }
     if is_style_intrinsic_name(raw_key) {
         return false;
     }
@@ -193,6 +184,15 @@ pub(crate) fn set_live_style_named_property_value<'s>(
         };
         property
     };
+    if mode == StyleMode::Computed {
+        crate::native_bridge::throw_dom_exception(
+            scope,
+            "NoModificationAllowedError",
+            7,
+            "Cannot modify a read-only CSSStyleDeclaration.",
+        );
+        return true;
+    }
     let value = if value.is_null_or_undefined() {
         String::new()
     } else {
