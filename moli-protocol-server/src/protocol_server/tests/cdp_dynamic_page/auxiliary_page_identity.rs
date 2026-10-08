@@ -1549,3 +1549,27 @@ async fn cross_window_blank_location_inherits_source_environment() {
         "a referenced about:blank navigation inherits its source rather than target environment"
     );
 }
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn auxiliary_initial_javascript_url_runs_after_the_opening_script() {
+    let (addr, server) = spawn_test_protocol_server().await;
+    let (mut browser, _) =
+        connect_async(format!("ws://{addr}/devtools/browser/{DEFAULT_BROWSER_ID}"))
+            .await
+            .unwrap();
+    let opener_id = create_dynamic_target(&mut browser, 1).await;
+    let mut opener = connect_dynamic_page(addr, &opener_id).await;
+    let (_, mut child) = open_auxiliary_with_url(
+        addr,
+        &mut opener,
+        "javascript:opener.initialResult=[opener.openingFinished,window===opener.popup,opener!==window];void(0)",
+        "window.popup=p;window.openingFinished=true",
+    )
+    .await;
+    wait_for_value(&mut opener, "initialResult", json!([true, true, true])).await;
+    assert_eq!(
+        evaluate_window_name_probe(&mut child, 2, "location.href").await,
+        json!("about:blank"),
+    );
+    abort_test_cdp_server(server).await;
+}
