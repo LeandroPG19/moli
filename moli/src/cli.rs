@@ -117,6 +117,16 @@ pub struct FetchArgs {
     #[arg(short, long, value_enum)]
     pub dump: Option<DumpFormat>,
 
+    /// Exit with code 22 if the final main-document HTTP status is >= 400,
+    /// suppressing response output and reporting the status to stderr.
+    #[arg(short = 'f', long, conflicts_with = "fail_with_body")]
+    pub fail: bool,
+
+    /// Exit with code 22 if the final main-document HTTP status is >= 400,
+    /// preserving the selected output format and reporting the status to stderr.
+    #[arg(long, conflicts_with = "fail")]
+    pub fail_with_body: bool,
+
     /// Evaluate one JavaScript expression after page readiness and write its
     /// value to stdout. Promises are awaited. Strings are written as text;
     /// other serializable values are written as compact JSON.
@@ -1013,6 +1023,7 @@ mod tests {
         let long = Cli::parse_from([
             "moli",
             "fetch",
+            "--fail",
             "--dump",
             "markdown",
             "--wait-until",
@@ -1037,6 +1048,7 @@ mod tests {
         let short = Cli::parse_from([
             "moli",
             "fetch",
+            "-f",
             "-d",
             "markdown",
             "--wait-until",
@@ -1102,7 +1114,6 @@ mod tests {
             ["moli", "fetch", "-w", "load", "https://example.test/"].as_slice(),
             ["moli", "fetch", "-s", "main", "https://example.test/"].as_slice(),
             ["moli", "fetch", "-i", "https://example.test/"].as_slice(),
-            ["moli", "fetch", "-f", "https://example.test/"].as_slice(),
             ["moli", "fetch", "-a", "https://example.test/"].as_slice(),
             ["moli", "fetch", "-v", "https://example.test/"].as_slice(),
             ["moli", "fetch", "-m", "https://example.test/"].as_slice(),

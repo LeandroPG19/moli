@@ -227,8 +227,10 @@ For a crawl rather than a single lookup:
 
 ## Failure Diagnosis
 
-- **Empty or shell-only output:** add a content selector wait, inspect semantic
-  output, then check frames and application responses.
+- **Empty or shell-only output:** first inspect `status` and `final_url` with
+  JSON output. For a successful response with missing content, add a content
+  selector wait, inspect semantic output, then check frames and application
+  responses.
 - **Timeout:** replace a broad wait with the narrowest observable signal before
   increasing the timeout.
 - **401/403/login page:** report the access boundary or use only authorized
