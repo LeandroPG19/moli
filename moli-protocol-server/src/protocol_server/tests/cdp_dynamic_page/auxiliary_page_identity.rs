@@ -1549,3 +1549,33 @@ async fn cross_window_blank_location_inherits_source_environment() {
         "a referenced about:blank navigation inherits its source rather than target environment"
     );
 }
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn auxiliary_cross_page_timer_updates_reindex_the_creator_deadline() {
+    let (addr, server) = spawn_test_protocol_server().await;
+    let (mut browser, _) =
+        connect_async(format!("ws://{addr}/devtools/browser/{DEFAULT_BROWSER_ID}"))
+            .await
+            .unwrap();
+    let opener_id = create_dynamic_target(&mut browser, 1).await;
+    let mut opener = connect_dynamic_page(addr, &opener_id).await;
+    let (_, mut child) = open_auxiliary(
+        addr,
+        &mut opener,
+        "window.timerResult=[];window.canceled=false",
+    )
+    .await;
+    evaluate_window_name_probe(&mut child,4,
+        "opener.setTimeout(()=>opener.timerResult.push('timeout'),0);let id=opener.setInterval(()=>{opener.timerResult.push('interval');opener.clearInterval(id)},0);let canceled=opener.setTimeout(()=>opener.canceled=true,0);opener.clearTimeout(canceled);true").await;
+    wait_for_value(
+        &mut opener,
+        "timerResult.slice().sort()",
+        json!(["interval", "timeout"]),
+    )
+    .await;
+    assert_eq!(
+        evaluate_window_name_probe(&mut opener, 5, "canceled").await,
+        false
+    );
+    abort_test_cdp_server(server).await;
+}
