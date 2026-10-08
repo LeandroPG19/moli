@@ -141,7 +141,14 @@ pub async fn run_cli_with_config<W: Write>(
                         .context("failed to publish layout before evaluating JavaScript")
                         .map_err(|error| with_fetch_context(error, &args.url))?;
                 }
-                eval_output::evaluate(&mut page, expression).await
+                if args.dump.is_some() {
+                    eval_output::execute(&mut page, expression)
+                        .await
+                        .map_err(|error| with_fetch_context(error, &args.url))?;
+                    fetch_dump::render_page_output_async(&mut page, &config.fetch).await
+                } else {
+                    eval_output::evaluate(&mut page, expression).await
+                }
             } else {
                 fetch_dump::render_page_output_async(&mut page, &config.fetch).await
             }
